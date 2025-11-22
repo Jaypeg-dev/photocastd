@@ -36,27 +36,29 @@ It’s designed for home labs and self-hosted setups: minimal dependencies, fast
 
 🧱 Project Structure
 
+```markdown
+
 photocastd/
  ├── app.py             # main service
  ├── config.yaml        # Slideshow + source configuration
  ├── requirements.txt   # Python dependencies
  ├── service.sh         # Installer + systemd setup script
  ├── README.md          # this file
-
+```
 
  🚀 Installation on Raspberry Pi
 
 1. Copy or clone the repository
 
-cd /opt
+`cd /opt
 sudo git clone https://github.com/<YOUR-USERNAME>/photocastd.git
 sudo chown -R pi:pi photocastd
-cd photocastd
+cd photocastd`
 
 2. Run the installer
 
-chmod +x service.sh
-./service.sh
+`chmod +x service.sh
+./service.sh`
 
 This will:
 	•	create a Python venv
@@ -66,8 +68,8 @@ This will:
 
 3. Check status
 
-sudo systemctl status photocastd
-sudo journalctl -u photocastd -f
+`sudo systemctl status photocastd
+sudo journalctl -u photocastd -f`
 
 ⚙️ Configuration (config.yaml)
 
@@ -76,13 +78,13 @@ The service is fully configured through config.yaml.
 📡 REST API
 
 start slideshow
-curl -X POST http://raspi.local:8099/api/start
+`curl -X POST http://raspi.local:8099/api/start`
 
 stop
-curl -X POST http://raspi.local:8099/api/stop
+`curl -X POST http://raspi.local:8099/api/stop`
 
 Reindex image sources
-curl -X POST http://raspi.local:8099/api/reindex
+`curl -X POST http://raspi.local:8099/api/reindex`
 
 Status
 curl http://raspi.local:8099/api/status
