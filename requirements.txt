@@ -1,0 +1,9 @@
+Flask==3.0.3
+pychromecast==13.0.7
+Pillow==10.4.0
+pillow-heif==0.18.0
+boto3==1.34.160
+webdavclient3==3.14.6
+python-dateutil==2.9.0.post0
+PyYAML==6.0.2
+ExifRead==3.0.0

@@ -1,0 +1,58 @@
+# Where images come from. Prefer local Nextcloud data folders for speed.
+sources:
+  - type: local
+    path: /media/Pictures/2025
+    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
+  - type: local
+    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
+
+  # Example: Nextcloud WebDAV (comment out if unused)
+  # - type: webdav
+  #   url: "https://cloud.example.com/remote.php/dav/files/Jules/Photos/Shared"
+  #   username: "Jules"
+  #   password: "app-password-here"
+  #   include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png"]
+
+  # Example: Wasabi S3 (comment out if unused; this streams via the Pi, not public)
+  # - type: s3
+  #   bucket: "your-wasabi-bucket"
+  #   prefix: "photos/albums/family/"
+  #   endpoint_url: "https://s3.eu-central-2.wasabisys.com"
+  #   access_key: "AKIA..."
+  #   secret_key: "..."
+  #   include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png"]
+
+playlist:
+  shuffle: true
+  recursive: true
+  min_resolution: [1280, 720]   # skip tiny thumbnails
+  max_age_days: 36500           # e.g., 100 years, tighten if you want "recent only"
+  sort: "mtime"                 # or "name", ignored if shuffle=true
+
+render:
+  long_edge: 1920               # resize for TV; 0 = original
+  jpeg_quality: 88
+  heic_support: true            # requires pillow-heif
+  caption:
+    enabled: true
+    text: "{datetime}  ·  {filename}"  # EXIF datetime if present
+    font_path: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    font_size: 28
+    shadow: true
+
+cast:
+  devices:
+    - "SalleTV"
+    - "Gym"
+    - "Kitchen"
+  slide_seconds: 15
+  preload_next: true
+
+server:
+  host: 0.0.0.0
+  port: 8099
+  base_url: "http://raspi.local:8099"  # used to hand Chromecast stable URLs
+
+logging:
+  level: INFO
+  file: "/var/log/photocastd.log"
