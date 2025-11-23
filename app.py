@@ -378,6 +378,59 @@ def api_stop():
         evt.set()
     return jsonify({"ok": True})
 
+@app.route("/api/start_device", methods=["POST"])
+def api_start_device():
+    """
+    Start slideshow on a single device without touching others.
+    Body: {"device": "SalleTV", "slide_seconds": 15, "shuffle": true}
+    """
+    body = request.get_json(silent=True) or {}
+    dev = body.get("device")
+    if not dev:
+        return jsonify({"ok": False, "error": "device is required"}), 400
+
+    # Optional overrides
+    if "slide_seconds" in body:
+        CFG["cast"]["slide_seconds"] = int(body["slide_seconds"])
+    if "shuffle" in body:
+        CFG["playlist"]["shuffle"] = bool(body["shuffle"])
+
+    # (Re)build playlist if we changed shuffle or if it's empty
+    global PLAYLIST
+    if not PLAYLIST:
+        build_playlist()
+
+    # If already running for this device, do nothing
+    if dev in CAST_THREADS and CAST_THREADS[dev].is_alive():
+        return jsonify({"ok": True, "device": dev, "status": "already_running"})
+
+    evt = threading.Event()
+    t = threading.Thread(target=cast_loop, args=(dev, evt), daemon=True)
+    CAST_STOP_FLAGS[dev] = evt
+    CAST_THREADS[dev] = t
+    t.start()
+
+    return jsonify({"ok": True, "device": dev, "status": "started"})
+
+
+@app.route("/api/stop_device", methods=["POST"])
+def api_stop_device():
+    """
+    Stop slideshow on a single device.
+    Body: {"device": "SalleTV"}
+    """
+    body = request.get_json(silent=True) or {}
+    dev = body.get("device")
+    if not dev:
+        return jsonify({"ok": False, "error": "device is required"}), 400
+
+    evt = CAST_STOP_FLAGS.get(dev)
+    if evt:
+        evt.set()
+        return jsonify({"ok": True, "device": dev, "status": "stopping"})
+    else:
+        return jsonify({"ok": True, "device": dev, "status": "not_running"})
+
 if __name__ == "__main__":
     build_playlist()
     host = CFG["server"]["host"]

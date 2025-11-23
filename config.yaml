@@ -3,8 +3,8 @@ sources:
   - type: local
     path: /media/Pictures/2025
     include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
-  - type: local
-    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
+#  - type: local
+#    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
 
   # Example: Nextcloud WebDAV (comment out if unused)
   # - type: webdav
