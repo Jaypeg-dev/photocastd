@@ -42,16 +42,16 @@ render:
 
 cast:
   devices:
-    - "SalleTV"
+    - "Google TV"
     - "Gym"
-    - "Kitchen"
+    - "KitchenNest"
   slide_seconds: 15
   preload_next: true
 
 server:
   host: 0.0.0.0
   port: 8099
-  base_url: "http://raspi.local:8099"  # used to hand Chromecast stable URLs
+  base_url: "http://192.168.20.56:8099"  # used to hand Chromecast stable URLs
 
 logging:
   level: INFO

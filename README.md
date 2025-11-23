@@ -4,7 +4,7 @@ PhotoCastD is a lightweight Python service that runs on a Raspberry Pi and turns
 
 It’s designed for home labs and self-hosted setups: minimal dependencies, fast local image serving, zero external APIs.
 
-⸻
+___
 
 ✨ Features
 	•	Pull photos from:
@@ -32,7 +32,7 @@ It’s designed for home labs and self-hosted setups: minimal dependencies, fast
 	•	Systemd service for auto-start on boot
 	•	Fully configurable via config.yaml
 
-⸻
+___
 
 🧱 Project Structure
 
@@ -50,15 +50,21 @@ photocastd/
 
 1. Copy or clone the repository
 
-`cd /opt
-sudo git clone https://github.com/<YOUR-USERNAME>/photocastd.git
+```shell
+cd /opt
+sudo git clone https://github.com/jaypeg-dev/photocastd.git
+
 sudo chown -R pi:pi photocastd
-cd photocastd`
+
+cd photocastd
+```
 
 2. Run the installer
 
-`chmod +x service.sh
-./service.sh`
+```shell
+chmod +x service.sh
+./service.sh
+```
 
 This will:
 	•	create a Python venv
@@ -68,8 +74,10 @@ This will:
 
 3. Check status
 
-`sudo systemctl status photocastd
-sudo journalctl -u photocastd -f`
+```shell
+sudo systemctl status photocastd
+sudo journalctl -u photocastd -f
+```
 
 ⚙️ Configuration (config.yaml)
 
@@ -78,39 +86,59 @@ The service is fully configured through config.yaml.
 📡 REST API
 
 start slideshow
-`curl -X POST http://raspi.local:8099/api/start`
+```shell
+curl -X POST http://raspi.local:8099/api/start
+```
 
 stop
-`curl -X POST http://raspi.local:8099/api/stop`
+```shell
+curl -X POST http://raspi.local:8099/api/stop
+```
 
 Reindex image sources
-`curl -X POST http://raspi.local:8099/api/reindex`
+```shell
+curl -X POST http://raspi.local:8099/api/reindex
+```
 
 Status
+```shell
 curl http://raspi.local:8099/api/status
+```
 
 🖥 Development Flow (Mac → Pi)
 
 Typical workflow:
 
-On Mac:
+On Mac
+
+```shell
 ~/MyApps/photocastd
 # edit code in Rider
 git add .
 git commit -m "Some change"
 git push
+```
+
+
 On Pi:
 
+```shell
 cd /opt/photocastd
 git pull
 sudo systemctl restart photocastd
 sudo journalctl -u photocastd -n 50 -f
+```
 
 🧪 Testing locally
-
+```shell
 python3 app.py
+```
+
+```shell
 curl http://localhost:8099/api/status
+```
 
 🛠 Troubleshooting
-
+```shell
 sudo journalctl -u photocastd -n 100 --no-pager
+```
