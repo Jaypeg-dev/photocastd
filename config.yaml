@@ -42,14 +42,14 @@ render:
 
 cast:
   devices:
-    - "Google TV"
+    - "SalleTV"
     - "Gym"
     - "KitchenNest"
   slide_seconds: 15
   preload_next: true
 
 server:
-  host: 0.0.0.0
+  host: "::"
   port: 8099
   base_url: "http://192.168.20.56:8099"  # used to hand Chromecast stable URLs
 
