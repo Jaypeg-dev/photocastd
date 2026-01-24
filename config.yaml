@@ -9,7 +9,8 @@ sources:
   - type: local
     path: /media/Pictures/GymPics
     include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
-#    path: null
+#  - type: local
+#    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
 
   # Example: Nextcloud WebDAV (comment out if unused)
   # - type: webdav
