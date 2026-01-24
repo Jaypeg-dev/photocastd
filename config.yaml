@@ -1,7 +1,13 @@
 # Where images come from. Prefer local Nextcloud data folders for speed.
 sources:
+#  - type: local
+#    path: /media/Pictures/2025
+#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
+#  - type: local
+#    path: /media/Pictures/2026
+#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
   - type: local
-    path: /media/Pictures/2025
+    path: /media/Pictures/GymPics
     include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
 #  - type: local
 #    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
@@ -30,7 +36,7 @@ playlist:
   sort: "mtime"                 # or "name", ignored if shuffle=true
 
 render:
-  long_edge: 1920               # resize for TV; 0 = original
+  long_edge: 0               # resize for TV 1920 ; 0 = original
   jpeg_quality: 88
   heic_support: true            # requires pillow-heif
   caption:
