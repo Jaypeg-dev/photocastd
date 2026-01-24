@@ -1,10 +1,15 @@
 # Where images come from. Prefer local Nextcloud data folders for speed.
 sources:
+#  - type: local
+#    path: /media/Pictures/2025
+#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
+#  - type: local
+#    path: /media/Pictures/2026
+#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
   - type: local
-    path: /media/Pictures/2025
+    path: /media/Pictures/GymPics
     include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
-  - type: local
-    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
+#    path: null
 
   # Example: Nextcloud WebDAV (comment out if unused)
   # - type: webdav
@@ -30,7 +35,7 @@ playlist:
   sort: "mtime"                 # or "name", ignored if shuffle=true
 
 render:
-  long_edge: 1920               # resize for TV; 0 = original
+  long_edge: 0               # resize for TV 1920 ; 0 = original
   jpeg_quality: 88
   heic_support: true            # requires pillow-heif
   caption:
@@ -44,14 +49,14 @@ cast:
   devices:
     - "SalleTV"
     - "Gym"
-    - "Kitchen"
+    - "KitchenNest"
   slide_seconds: 15
   preload_next: true
 
 server:
-  host: 0.0.0.0
+  host: "::"
   port: 8099
-  base_url: "http://raspi.local:8099"  # used to hand Chromecast stable URLs
+  base_url: "http://192.168.20.56:8099"  # used to hand Chromecast stable URLs
 
 logging:
   level: INFO
