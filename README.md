@@ -85,14 +85,28 @@ The service is fully configured through config.yaml.
 
 📡 REST API
 
-start slideshow
+Start slideshow (all configured devices)
 ```shell
 curl -X POST http://raspi.local:8099/api/start
 ```
 
-stop
+Start slideshow on specific device with source
+```shell
+curl -X POST http://raspi.local:8099/api/start_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym", "source": "/media/Pictures/GymPics"}'
+```
+
+Stop
 ```shell
 curl -X POST http://raspi.local:8099/api/stop
+```
+
+Stop specific device
+```shell
+curl -X POST http://raspi.local:8099/api/stop_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym"}'
 ```
 
 Reindex image sources
