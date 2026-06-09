@@ -55,6 +55,19 @@ cast:
   slide_seconds: 15
   preload_next: true
 
+# Optional: Route specific source folders to specific devices.
+# If a source path matches a routing key (by prefix), only those devices receive the cast.
+# Sources not matching any rule → cast to all devices (backward compatible).
+routing:
+  # Gym photos → Gym device only
+  "/media/Pictures/GymPics": ["Gym"]
+  # Kitchen photos → KitchenNest device only
+  "/media/Pictures/kitchen": ["KitchenNest"]
+  # Example: Photos from /media/Pictures/Favs → SalleTV only
+  "/media/Pictures/Favs": ["SalleTV"]
+  # Example: Multi-device cast
+  "/media/Pictures/Family": ["SalleTV", "KitchenNest"]
+
 server:
   host: "::"
   port: 8099
