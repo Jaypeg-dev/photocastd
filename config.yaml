@@ -59,13 +59,14 @@ cast:
 # If a source path matches a routing key (by prefix), only those devices receive the cast.
 # Sources not matching any rule → cast to all devices (backward compatible).
 routing:
+  # Gym photos → Gym device only
+  "/media/Pictures/GymPics": ["Gym"]
+  # Kitchen photos → KitchenNest device only
+  "/media/Pictures/kitchen": ["KitchenNest"]
   # Example: Photos from /media/Pictures/Favs → SalleTV only
   "/media/Pictures/Favs": ["SalleTV"]
-  # Example: Work pics → Gym screen
-  "/media/Pictures/Work": ["Gym"]
   # Example: Multi-device cast
   "/media/Pictures/Family": ["SalleTV", "KitchenNest"]
-  # Uncomment and customize as needed
 
 server:
   host: "::"
