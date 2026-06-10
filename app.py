@@ -58,6 +58,7 @@ class MediaItem:
 
 PLAYLIST: List[MediaItem] = []
 PLAYHEAD = 0
+ITEM_REGISTRY: Dict[str, MediaItem] = {}  # id → item, covers all playlists including per-device overrides
 CAST_THREADS: Dict[str, threading.Thread] = {}
 CAST_STOP_FLAGS: Dict[str, threading.Event] = {}
 
@@ -286,6 +287,7 @@ def build_playlist():
 
     PLAYLIST = items
     PLAYHEAD = 0
+    ITEM_REGISTRY.update({i.id: i for i in items})
     log.info("Playlist ready: %d items", len(PLAYLIST))
 
 # -------- HTTP server ----------
@@ -305,11 +307,9 @@ def api_status():
 
 @app.route("/image/<img_id>.jpg")
 def get_image(img_id):
-    # find item
-    matches = [m for m in PLAYLIST if m.id == img_id]
-    if not matches:
+    item = ITEM_REGISTRY.get(img_id)
+    if not item:
         abort(404)
-    item = matches[0]
     try:
         out_path = render_cached(item)
     except Exception:
@@ -416,6 +416,7 @@ def api_start_device():
         device_playlist = add_local_source(scfg)
         if not device_playlist:
             return jsonify({"ok": False, "error": f"No images found at source: {source_override}"}), 400
+        ITEM_REGISTRY.update({i.id: i for i in device_playlist})
         log.info("Source override for %s: %s (%d items)", dev, source_override, len(device_playlist))
 
     # If already running for this device, do nothing
