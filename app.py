@@ -316,7 +316,7 @@ def get_image(img_id):
         abort(500)
     return send_file(out_path, mimetype="image/jpeg", max_age=3600)
 
-def cast_loop(dev_name: str, stop_evt: threading.Event):
+def cast_loop(dev_name: str, stop_evt: threading.Event, playlist: Optional[List[MediaItem]] = None):
     slide_seconds = CFG["cast"]["slide_seconds"]
     global PLAYHEAD
     chromecasts, _ = pychromecast.get_listed_chromecasts(friendly_names=[dev_name])
@@ -327,8 +327,13 @@ def cast_loop(dev_name: str, stop_evt: threading.Event):
     cast.wait()
     mc = cast.media_controller
 
-    while not stop_evt.is_set() and PLAYLIST:
-        item = PLAYLIST[PLAYHEAD % len(PLAYLIST)]
+    active_playlist = playlist if playlist is not None else PLAYLIST
+    playhead = 0
+
+    while not stop_evt.is_set() and active_playlist:
+        if playlist is None:
+            active_playlist = PLAYLIST
+        item = active_playlist[playhead % len(active_playlist)]
         url = f"{BASE_URL}/image/{item.id}.jpg"
         log.debug("Casting to %s: %s", dev_name, url)
         mc.play_media(url, "image/jpeg")
@@ -339,7 +344,9 @@ def cast_loop(dev_name: str, stop_evt: threading.Event):
             if stop_evt.is_set():
                 break
             time.sleep(0.1)
-        PLAYHEAD += 1
+        playhead += 1
+        if playlist is None:
+            PLAYHEAD = playhead
 
     mc.stop()
     cast.quit_app()
@@ -400,12 +407,23 @@ def api_start_device():
     if not PLAYLIST:
         build_playlist()
 
+    # Build a per-device playlist if a source path override was provided
+    source_override = body.get("source")
+    device_playlist: Optional[List[MediaItem]] = None
+    if source_override:
+        scfg = {"type": "local", "path": source_override,
+                "include_globs": ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]}
+        device_playlist = add_local_source(scfg)
+        if not device_playlist:
+            return jsonify({"ok": False, "error": f"No images found at source: {source_override}"}), 400
+        log.info("Source override for %s: %s (%d items)", dev, source_override, len(device_playlist))
+
     # If already running for this device, do nothing
     if dev in CAST_THREADS and CAST_THREADS[dev].is_alive():
         return jsonify({"ok": True, "device": dev, "status": "already_running"})
 
     evt = threading.Event()
-    t = threading.Thread(target=cast_loop, args=(dev, evt), daemon=True)
+    t = threading.Thread(target=cast_loop, args=(dev, evt, device_playlist), daemon=True)
     CAST_STOP_FLAGS[dev] = evt
     CAST_THREADS[dev] = t
     t.start()
