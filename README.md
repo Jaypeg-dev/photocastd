@@ -1,165 +1,145 @@
-PhotoCastD — Nextcloud → Chromecast Photo Slideshow Service
+# photocastd — Chromecast Photo Slideshow
 
-PhotoCastD is a lightweight Python service that runs on a Raspberry Pi and turns your Nextcloud photo folders (or any local/S3/WebDAV source) into a Google Photos–style TV slideshow using Chromecast.
+Automated photo casting to Chromecast devices from local or Nextcloud sources.
 
-It’s designed for home labs and self-hosted setups: minimal dependencies, fast local image serving, zero external APIs.
+## Features
 
-___
+- 📸 Cast photos from local directories to Chromecast devices
+- 🔄 Automatic slideshow with configurable intervals
+- 📂 Multiple image sources (local, Nextcloud)
+- ⚙️ Per-device source routing (device → default source)
+- 🎯 Runtime source override via API
+- 🚀 Zero external dependencies (uses pychromecast)
 
-✨ Features
-	•	Pull photos from:
-	•	Local Nextcloud data folders
-	•	Nextcloud WebDAV
-	•	Wasabi S3 (or any s3-compatible backend)
-	•	Automatic playlist building with:
-	•	Shuffle or ordered
-	•	Min resolution filters
-	•	Max age filters
-	•	Recursive folder scan
-	•	Optimized image rendering:
-	•	Resize to TV-friendly long edge
-	•	HEIC support (pillow-heif)
-	•	Optional EXIF timestamp + filename caption
-	•	Chromecast slideshow:
-	•	Works with Default Media Receiver
-	•	Multiple devices at once
-	•	Configurable slide interval
-	•	REST API for remote control:
-	•	/api/start
-	•	/api/stop
-	•	/api/reindex
-	•	/api/status
-	•	Systemd service for auto-start on boot
-	•	Fully configurable via config.yaml
+## Quick Start
 
-___
+### Install
 
-🧱 Project Structure
-
-```markdown
-
-photocastd/
- ├── app.py             # main service
- ├── config.yaml        # Slideshow + source configuration
- ├── requirements.txt   # Python dependencies
- ├── service.sh         # Installer + systemd setup script
- ├── README.md          # this file
+```bash
+pip install -r requirements.txt
 ```
 
- 🚀 Installation on Raspberry Pi
+### Configure
 
-1. Copy or clone the repository
+Create `config.yaml`:
 
-```shell
-cd /opt
-sudo git clone https://github.com/jaypeg-dev/photocastd.git
+```yaml
+# Where images come from. Prefer local Nextcloud data folders for speed.
+sources:
+  - type: local
+    path: /media/Pictures/Favs
+    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
 
-sudo chown -R pi:pi photocastd
+# Route devices to sources
+routing:
+  device_sources:
+    Gym: /media/Pictures/GymPics
+    Kitchen: /media/Pictures/Favs
+    Bedroom: /media/Pictures/2026
 
-cd photocastd
+# Chromecast devices
+cast:
+  devices:
+    Gym: "Gym Nest Hub"
+    Kitchen: "Kitchen Nest Hub"
+    Bedroom: "Bedroom Nest Mini"
+  
+  # Slideshow timing
+  interval: 30  # seconds per image
+  transition: 2  # fade duration (seconds)
 ```
 
-2. Run the installer
+### Run
 
-```shell
-chmod +x service.sh
-./service.sh
+```bash
+python app.py
 ```
 
-This will:
-	•	create a Python venv
-	•	install dependencies
-	•	create and enable a photocastd.service systemd unit
-	•	start the service automatically
+Server listens on `http://0.0.0.0:8099`
 
-3. Check status
+---
 
-```shell
-sudo systemctl status photocastd
-sudo journalctl -u photocastd -f
-```
+## API
 
-⚙️ Configuration (config.yaml)
+### Start slideshow on device
 
-The service is fully configured through config.yaml.
+**Endpoint:** `POST /api/start_device`
 
-📡 REST API
+**Parameters:**
+- `device` (string, required) — Device name from config (e.g., `Gym`, `Kitchen`)
+- `source` (string, optional) — Override default source path. If omitted, uses device's default from `routing.device_sources`
 
-**Start slideshow on specific device**
-```shell
-# Start with device's default source
+**Examples:**
+
+*With device's default source:*
+```bash
 curl -X POST http://raspi.local:8099/api/start_device \
   -H "Content-Type: application/json" \
   -d '{"device": "Gym"}'
-
-# Start with specific photo collection override
-curl -X POST http://raspi.local:8099/api/start_device \
-  -H "Content-Type: application/json" \
-  -d '{"device": "Gym", "source": "/media/Pictures/GymPics"}'
 ```
 
-Parameters:
-- `device` (string, required) — Device name from config.yaml (e.g., "Gym", "KitchenNest", "SalleTV")
-- `source` (string, optional) — Override default photo source path. If omitted, uses device's configured default
+*With custom source override:*
+```bash
+curl -X POST http://raspi.local:8099/api/start_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym", "source": "/media/Pictures/2026"}'
+```
 
-**Stop slideshow on device**
-```shell
+**Response:**
+```json
+{"status": "ok", "device": "Gym", "source": "/media/Pictures/GymPics"}
+```
+
+---
+
+### Stop slideshow on device
+
+**Endpoint:** `POST /api/stop_device`
+
+**Parameters:**
+- `device` (string, required) — Device name
+
+**Example:**
+```bash
 curl -X POST http://raspi.local:8099/api/stop_device \
   -H "Content-Type: application/json" \
   -d '{"device": "Gym"}'
 ```
 
-Parameters:
-- `device` (string, required) — Device name
+---
 
-**Reindex image sources**
-```shell
-curl -X POST http://raspi.local:8099/api/reindex
+### Health check
+
+**Endpoint:** `GET /health`
+
+**Response:**
+```json
+{"status": "ok", "devices": ["Gym", "Kitchen", "Bedroom"]}
 ```
 
-Rescans all configured sources for new/changed images.
+---
 
-**Get status**
-```shell
-curl http://raspi.local:8099/api/status
+## Systemd Service
+
+Install as systemd service:
+
+```bash
+sudo cp photocastd.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable photocastd
+sudo systemctl start photocastd
 ```
 
-Returns JSON with current casting state for all devices.
-
-🖥 Development Flow (Mac → Pi)
-
-Typical workflow:
-
-On Mac
-
-```shell
-~/MyApps/photocastd
-# edit code in Rider
-git add .
-git commit -m "Some change"
-git push
+Check status:
+```bash
+sudo systemctl status photocastd
+sudo journalctl -u photocastd -f
 ```
 
+---
 
-On Pi:
+## Troubleshooting
 
-```shell
-cd /opt/photocastd
-git pull
-sudo systemctl restart photocastd
-sudo journalctl -u photocastd -n 50 -f
-```
-
-🧪 Testing locally
-```shell
-python3 app.py
-```
-
-```shell
-curl http://localhost:8099/api/status
-```
-
-🛠 Troubleshooting
-```shell
+```bash
 sudo journalctl -u photocastd -n 100 --no-pager
 ```
