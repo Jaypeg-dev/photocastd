@@ -85,25 +85,46 @@ The service is fully configured through config.yaml.
 
 📡 REST API
 
-start slideshow
+**Start slideshow on specific device**
 ```shell
-curl -X POST http://raspi.local:8099/api/start
+# Start with device's default source
+curl -X POST http://raspi.local:8099/api/start_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym"}'
+
+# Start with specific photo collection override
+curl -X POST http://raspi.local:8099/api/start_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym", "source": "/media/Pictures/GymPics"}'
 ```
 
-stop
+Parameters:
+- `device` (string, required) — Device name from config.yaml (e.g., "Gym", "KitchenNest", "SalleTV")
+- `source` (string, optional) — Override default photo source path. If omitted, uses device's configured default
+
+**Stop slideshow on device**
 ```shell
-curl -X POST http://raspi.local:8099/api/stop
+curl -X POST http://raspi.local:8099/api/stop_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym"}'
 ```
 
-Reindex image sources
+Parameters:
+- `device` (string, required) — Device name
+
+**Reindex image sources**
 ```shell
 curl -X POST http://raspi.local:8099/api/reindex
 ```
 
-Status
+Rescans all configured sources for new/changed images.
+
+**Get status**
 ```shell
 curl http://raspi.local:8099/api/status
 ```
+
+Returns JSON with current casting state for all devices.
 
 🖥 Development Flow (Mac → Pi)
 
