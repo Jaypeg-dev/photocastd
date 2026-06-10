@@ -418,9 +418,14 @@ def api_start_device():
             return jsonify({"ok": False, "error": f"No images found at source: {source_override}"}), 400
         ITEM_REGISTRY.update({i.id: i for i in device_playlist})
         log.info("Source override for %s: %s (%d items)", dev, source_override, len(device_playlist))
-
-    # If already running for this device, do nothing
-    if dev in CAST_THREADS and CAST_THREADS[dev].is_alive():
+        # Source was explicitly provided — stop any existing cast so we restart with the new source
+        if dev in CAST_STOP_FLAGS:
+            CAST_STOP_FLAGS[dev].set()
+            old_thread = CAST_THREADS.get(dev)
+            if old_thread:
+                old_thread.join(timeout=2)
+    elif dev in CAST_THREADS and CAST_THREADS[dev].is_alive():
+        # No source change requested and device is already running — leave it alone
         return jsonify({"ok": True, "device": dev, "status": "already_running"})
 
     evt = threading.Event()
