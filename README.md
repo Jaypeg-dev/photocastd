@@ -68,6 +68,8 @@ Server listens on `http://0.0.0.0:8099`
 **Parameters:**
 - `device` (string, required) — Device name from config (e.g., `Gym`, `Kitchen`)
 - `source` (string, optional) — Override default source path. If omitted, uses device's default from `routing.device_sources`
+- `slide_seconds` (integer, optional) — Duration to display each image (seconds). If omitted, uses default from `cast.slide_seconds` config
+- `shuffle` (boolean, optional) — Randomize playlist order. If omitted, uses default from `playlist.shuffle` config
 
 **Examples:**
 
@@ -85,9 +87,28 @@ curl -X POST http://raspi.local:8099/api/start_device \
   -d '{"device": "Gym", "source": "/media/Pictures/2026"}'
 ```
 
+*With custom slide timing and shuffle:*
+```bash
+curl -X POST http://raspi.local:8099/api/start_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Kitchen", "slide_seconds": 15, "shuffle": true}'
+```
+
+*Full example with all parameters:*
+```bash
+curl -X POST http://raspi.local:8099/api/start_device \
+  -H "Content-Type: application/json" \
+  -d '{"device": "Gym", "source": "/media/Pictures/2026", "slide_seconds": 20, "shuffle": false}'
+```
+
 **Response:**
 ```json
-{"status": "ok", "device": "Gym", "source": "/media/Pictures/GymPics"}
+{"ok": true, "device": "Gym", "status": "started"}
+```
+
+If the device is already running and no source change is requested, the response is:
+```json
+{"ok": true, "device": "Gym", "status": "already_running"}
 ```
 
 ---
