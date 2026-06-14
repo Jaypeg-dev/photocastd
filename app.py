@@ -124,6 +124,94 @@ def fit_long_edge(img: Image.Image, long_edge: int) -> Image.Image:
     new_size = (int(w*scale), int(h*scale))
     return img.resize(new_size, Image.LANCZOS)
 
+def apply_display_mode(img: Image.Image, mode: str, tv_width: int, tv_height: int) -> Image.Image:
+    """
+    Apply display mode transformation to image for TV output.
+    
+    Modes:
+    - letterbox: preserve aspect ratio, add black bars (default)
+    - resize: stretch image to fill TV dimensions (may distort)
+    - side-by-side: tile 2 portrait images horizontally to fill screen
+    """
+    if mode == "resize":
+        # Stretch to fill 16:9, may distort portrait images
+        return img.resize((tv_width, tv_height), Image.LANCZOS)
+    
+    elif mode == "side-by-side":
+        # For portrait images (9:16), tile 2 side-by-side to fill 16:9 TV
+        # This is most effective for portrait images that would otherwise have large letterbox
+        w, h = img.size
+        aspect = w / float(h)
+        
+        # If image is landscape-ish (> 1.0), just letterbox it
+        if aspect > 0.7:  # relatively wider than portrait
+            mode = "letterbox"
+            # Fall through to letterbox logic below
+        else:
+            # Portrait image: tile 2 copies side by side
+            # Scale each image to fill half the TV width while maintaining aspect ratio
+            target_w = tv_width // 2
+            target_h = tv_height
+            
+            # Scale to fit target height while maintaining aspect ratio
+            scale = target_h / float(h)
+            scaled_w = int(w * scale)
+            scaled_h = int(h * scale)
+            
+            # If scaled width is smaller than target, scale to width instead
+            if scaled_w < target_w:
+                scale = target_w / float(w)
+                scaled_w = int(w * scale)
+                scaled_h = int(h * scale)
+            
+            scaled_img = img.resize((scaled_w, scaled_h), Image.LANCZOS)
+            
+            # Crop center if needed to exact target size
+            if scaled_w > target_w or scaled_h > target_h:
+                x_offset = (scaled_w - target_w) // 2
+                y_offset = (scaled_h - target_h) // 2
+                scaled_img = scaled_img.crop((x_offset, y_offset, 
+                                             x_offset + target_w, y_offset + target_h))
+            
+            # Pad if needed
+            if scaled_w < target_w or scaled_h < target_h:
+                pad_w = (target_w - scaled_w) // 2
+                pad_h = (target_h - scaled_h) // 2
+                padded = Image.new("RGB", (target_w, target_h), (0, 0, 0))
+                padded.paste(scaled_img, (pad_w, pad_h))
+                scaled_img = padded
+            
+            # Tile 2x horizontally
+            output = Image.new("RGB", (tv_width, tv_height), (0, 0, 0))
+            output.paste(scaled_img, (0, 0))
+            output.paste(scaled_img, (target_w, 0))
+            return output
+    
+    if mode == "letterbox" or mode == "side-by-side":
+        # Letterbox: fit to TV while preserving aspect ratio, add black bars
+        w, h = img.size
+        aspect = w / float(h)
+        tv_aspect = tv_width / float(tv_height)
+        
+        if aspect > tv_aspect:
+            # Image wider than TV → fit to width
+            new_w = tv_width
+            new_h = int(tv_width / aspect)
+        else:
+            # Image taller than TV → fit to height
+            new_h = tv_height
+            new_w = int(tv_height * aspect)
+        
+        resized = img.resize((new_w, new_h), Image.LANCZOS)
+        output = Image.new("RGB", (tv_width, tv_height), (0, 0, 0))
+        x_offset = (tv_width - new_w) // 2
+        y_offset = (tv_height - new_h) // 2
+        output.paste(resized, (x_offset, y_offset))
+        return output
+    
+    # Default to letterbox
+    return apply_display_mode(img, "letterbox", tv_width, tv_height)
+
 def load_local(path: str) -> bytes:
     with Image.open(path) as im:
         im = fit_long_edge(im.convert("RGB"), LONG_EDGE)
