@@ -262,6 +262,7 @@ def render_cached(item: MediaItem) -> str:
     try:
         with Image.open(src) as im:
             im = fit_long_edge(im.convert("RGB"), LONG_EDGE)
+            im = apply_display_mode(im, DISPLAY_MODE, TV_WIDTH, TV_HEIGHT)
             dt = exif_datetime(src) if os.path.exists(src) else None
             cap = CAPTION_TEXT.format(datetime=dt or "", filename=item.filename)
             im = caption_image(im, cap)
