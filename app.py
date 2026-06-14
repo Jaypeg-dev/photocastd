@@ -64,6 +64,9 @@ CAST_STOP_FLAGS: Dict[str, threading.Event] = {}
 
 LONG_EDGE = CFG.get("render", {}).get("long_edge", 1920)
 JPEG_Q = CFG.get("render", {}).get("jpeg_quality", 88)
+DISPLAY_MODE = CFG.get("render", {}).get("display_mode", "letterbox")  # letterbox, resize, side-by-side
+TV_WIDTH = CFG.get("render", {}).get("tv_width", 1920)
+TV_HEIGHT = CFG.get("render", {}).get("tv_height", 1080)
 
 CAPTION = CFG.get("render", {}).get("caption", {}).get("enabled", False)
 CAPTION_TEXT = CFG.get("render", {}).get("caption", {}).get("text", "{datetime} · {filename}")
