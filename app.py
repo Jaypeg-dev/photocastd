@@ -215,6 +215,7 @@ def apply_display_mode(img: Image.Image, mode: str, tv_width: int, tv_height: in
 def load_local(path: str) -> bytes:
     with Image.open(path) as im:
         im = fit_long_edge(im.convert("RGB"), LONG_EDGE)
+        im = apply_display_mode(im, DISPLAY_MODE, TV_WIDTH, TV_HEIGHT)
         dt = exif_datetime(path)
         cap = CAPTION_TEXT.format(datetime=dt or "", filename=os.path.basename(path))
         im = caption_image(im, cap)
