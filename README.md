@@ -30,23 +30,47 @@ sources:
     path: /media/Pictures/Favs
     include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
 
-# Route devices to sources
-routing:
-  device_sources:
-    Gym: /media/Pictures/GymPics
-    Kitchen: /media/Pictures/Favs
-    Bedroom: /media/Pictures/2026
+playlist:
+  shuffle: true
+  recursive: true
+  min_resolution: [1280, 720]
+  max_age_days: 36500
+  sort: "mtime"
 
-# Chromecast devices
+render:
+  long_edge: 1920
+  jpeg_quality: 88
+  heic_support: true
+  # Display mode for portrait images on 16:9 TV:
+  # - letterbox: keep aspect ratio, add black bars (default, safe)
+  # - resize: stretch to fill 16:9 (may distort portrait images)
+  # - side-by-side: tile 2 portrait photos horizontally (recommended for 9:16 Pinterest photos)
+  display_mode: side-by-side
+  tv_width: 1920
+  tv_height: 1080
+  caption:
+    enabled: true
+    text: "{datetime}  ·  {filename}"
+    font_path: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    font_size: 28
+    shadow: true
+
 cast:
   devices:
-    Gym: "Gym Nest Hub"
-    Kitchen: "Kitchen Nest Hub"
-    Bedroom: "Bedroom Nest Mini"
-  
-  # Slideshow timing
-  interval: 30  # seconds per image
-  transition: 2  # fade duration (seconds)
+    - "SalleTV"
+    - "Gym"
+    - "KitchenNest"
+  slide_seconds: 15
+  preload_next: true
+
+server:
+  host: "::"
+  port: 8099
+  base_url: "http://192.168.20.56:8099"
+
+logging:
+  level: INFO
+  file: "/var/log/photocastd.log"
 ```
 
 ### Run
