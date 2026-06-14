@@ -83,6 +83,53 @@ Server listens on `http://0.0.0.0:8099`
 
 ---
 
+## Display Modes
+
+The `render.display_mode` parameter controls how images are displayed on a 16:9 TV, especially useful for portrait-oriented photos (9:16 aspect ratio, e.g., from Pinterest, Instagram).
+
+### Options
+
+| Mode | Behaviour | Best For | Notes |
+|------|-----------|----------|-------|
+| `letterbox` | Preserve aspect ratio, add black bars top/bottom or sides | Landscape & mixed | Safe default, no distortion. Portrait images have large black bars. |
+| `resize` | Stretch image to fill entire 16:9 screen | Landscape images | May distort portrait images. Text looks compressed. |
+| `side-by-side` | Tile 2 portrait images horizontally | Portrait collections (Pinterest, IG stories) | Fills 16:9 without distortion. Recommended for 9:16 images. |
+
+### Examples
+
+**Portrait image (9:16, e.g., 1080×1920 px) on 16:9 TV (1920×1080 px):**
+
+```
+Letterbox mode:        Resize mode:           Side-by-side mode:
+█████████████████     █████████████████     ██████████████████
+█ ┌───────────────█    █ ┌───────────────█    █ ┌──┐  ┌──────█
+█ │ PORTRAIT      █    █ │ STRETCHED     █    █ │P1│  │ P2   █
+█ │   IMAGE       █    █ │  PORTRAIT     █    █ │  │  │      █
+█ │               █    █ │  (distorted)  █    █ │  │  │      █
+█ │               █    █ │               █    █ └──┘  └──────█
+█ └───────────────█    █ └───────────────█    █████████████████
+█████████████████     █████████████████
+```
+
+### Configuration Example
+
+```yaml
+render:
+  display_mode: side-by-side  # for portrait images
+  tv_width: 1920              # standard 16:9 TV width
+  tv_height: 1080             # standard 16:9 TV height
+```
+
+For a different TV (e.g., 4K):
+```yaml
+render:
+  display_mode: side-by-side
+  tv_width: 3840              # 4K width
+  tv_height: 2160             # 4K height
+```
+
+---
+
 ## API
 
 ### Start slideshow on device
