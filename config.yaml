@@ -39,6 +39,9 @@ render:
   long_edge: 1920               # resize for TV 1920 ; 0 = original
   jpeg_quality: 88
   heic_support: true            # requires pillow-heif
+  display_mode: side-by-side    # letterbox, resize, or side-by-side (for portrait images on 16:9 TV)
+  tv_width: 1920                # used with side-by-side mode to tile portrait photos
+  tv_height: 1080               # (assumes standard 16:9 TV @ 1920x1080)
   caption:
     enabled: true
     text: "{datetime}  ·  {filename}"  # EXIF datetime if present
