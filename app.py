@@ -277,7 +277,7 @@ def matches_any(name: str, globs: List[str]) -> bool:
 
 def add_local_source(scfg) -> List[MediaItem]:
     items = []
-    globs = scfg.get("include_globs", ["**/*.jpg","**/*.jpeg","**/*.png","**/*.heic"])
+    globs = scfg.get("include_globs", ["**/*.jpg","**/*.jpeg","**/*.png","**/*.heic","**/*.webp"])
     for g in globs:
         for p in glob.glob(os.path.join(scfg["path"], g), recursive=True):
             try:
@@ -305,7 +305,7 @@ def add_webdav_source(scfg) -> List[MediaItem]:
                            "webdav_password": scfg["password"]})
     base = "/"
     stack = [base]
-    include_globs = scfg.get("include_globs", ["**/*.jpg","**/*.jpeg","**/*.png"])
+    include_globs = scfg.get("include_globs", ["**/*.jpg","**/*.jpeg","**/*.png","**/*.webp"])
     # NOTE: Some servers don’t expose recursive listings well; adjust for your tree.
     for root, dirs, files in client.list_iter(base, get_info=True):
         for f in files:
@@ -337,7 +337,7 @@ def add_s3_source(scfg) -> List[MediaItem]:
     for page in paginator.paginate(Bucket=scfg["bucket"], Prefix=prefix):
         for obj in page.get("Contents", []):
             key = obj["Key"]
-            if not matches_any(key, scfg.get("include_globs", ["**/*.jpg","**/*.jpeg","**/*.png"])):
+            if not matches_any(key, scfg.get("include_globs", ["**/*.jpg","**/*.jpeg","**/*.png","**/*.webp"])):
                 continue
             items.append(MediaItem(
                 id=hash_id("s3", key),
@@ -505,7 +505,7 @@ def api_start_device():
     device_playlist: Optional[List[MediaItem]] = None
     if source_override:
         scfg = {"type": "local", "path": source_override,
-                "include_globs": ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]}
+                "include_globs": ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic", "**/*.webp"]}
         device_playlist = add_local_source(scfg)
         if not device_playlist:
             return jsonify({"ok": False, "error": f"No images found at source: {source_override}"}), 400

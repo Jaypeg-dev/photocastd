@@ -2,13 +2,13 @@
 sources:
 #  - type: local
 #    path: /media/Pictures/2025
-#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
+#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic", "**/*.webp"]
 #  - type: local
 #    path: /media/Pictures/2026
-#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
+#    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic", "**/*.webp"]
   - type: local
     path: /media/Pictures/Favs
-    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic"]
+    include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.heic", "**/*.webp"]
 #  - type: local
 #    path: /data/nextcloud/Jules/files/Photos/Work Pics/events
 
@@ -17,7 +17,7 @@ sources:
   #   url: "https://cloud.example.com/remote.php/dav/files/Jules/Photos/Shared"
   #   username: "Jules"
   #   password: "app-password-here"
-  #   include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png"]
+  #   include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.webp"]
 
   # Example: Wasabi S3 (comment out if unused; this streams via the Pi, not public)
   # - type: s3
@@ -26,7 +26,7 @@ sources:
   #   endpoint_url: "https://s3.eu-central-2.wasabisys.com"
   #   access_key: "AKIA..."
   #   secret_key: "..."
-  #   include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png"]
+  #   include_globs: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.webp"]
 
 playlist:
   shuffle: true
